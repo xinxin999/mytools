@@ -8,3 +8,9 @@
 #titlespider
 这个是因为看先知社区的文章，有一些连接是空的，所以就写了一款
 这个是通用的，只需将第4行的切片改改和13行的xpath路径改改即可
+
+#fuzzingsql1.py
+这个是基于sql注入union select模糊测试的payload生成器，大家可以自己修改
+
+#fuzzingsql2.py
+这个是基于sql注入报错注入模糊测试的payload生成器，大家可以自己修改
