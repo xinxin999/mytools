@@ -14,3 +14,9 @@
 
 #fuzzingsql2.py
 这个是基于sql注入报错注入模糊测试的payload生成器，大家可以自己修改
+
+#myserver.py
+这个是配合client使用的，先运行myserver
+
+#myclient.py
+然后在运行myclient.py。当然myserver得传给靶机，然后myclient的host填靶机的ip地址，反弹shell
