@@ -20,3 +20,6 @@
 
 #myclient.py
 然后在运行myclient.py。当然myserver得传给靶机，然后myclient的host填靶机的ip地址，反弹shell
+
+#urlcollect.py
+输入谷歌语法，例如inurl:aspx?id=   然后输入页数即可
