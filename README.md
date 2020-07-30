@@ -23,3 +23,9 @@
 
 #urlcollect.py
 输入谷歌语法，例如inurl:aspx?id=   然后输入页数即可
+
+#TOOLnet.py
+爬取吐司论坛文章的标题
+
+#正则提取关键类容
+只需改一下正则，提取txt里的关键类容到另外一个txt文本
