@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*
 from lxml import etree
 import requests
+import time
 import re
 import urllib.request
 DOMAIN = "https://www.baidu.com/s?wd="
-a = input('请输入你要搜索的url:')
-b = int(input('请输入你想爬取的页数:'))
+a = input('请输入url:')
+b = int(input('请输入爬取的页数:'))
 c = int((b-1)*10+1)
 for i in range(0,c,10):
     d = str(i)
@@ -26,6 +28,25 @@ for i in range(0,c,10):
     }
     resp = requests.get(url, headers=headers)
     text = resp.text
-    Wangzhi = re.findall('<a target="_blank" href="(.*?)" class="c-showurl" style="text-decoration:none;">',text)
-    #print(Wangzhi)
-    r_url = print(*Wangzhi,sep = '\n')
+    html = etree.HTML(text)
+    urllinks = html.xpath("//div[@class='f13  se_st_footer']//a/@href")
+    for yuanshu in urllinks:
+        if yuanshu.startswith('http://www.baidu.com/'):
+            r = requests.get(yuanshu)
+            fliter1 = '?'
+            fliter2 = '404'
+            fliter3 = 'shtml'
+            fliter4 = 'html'
+            answear1 = fliter1 in (r.url)
+            answear2 = fliter2 not in (r.url)
+            answear3 = fliter3 not in (r.url)
+            answear4 = fliter4 not in (r.url)
+            time.sleep(0.1)
+            if bool(answear1) == True:
+                if bool(answear2) == True:
+                    if bool(answear3) == True:
+                        if bool(answear4) == True:
+                            print(r.url)
+                            f1 = open("url.txt", "a+", encoding='utf-8')
+                            f1.write((r.url)+'\n')
+                            f1.close()
