@@ -1,52 +1,129 @@
-# -*- coding: utf-8 -*
-from lxml import etree
-import requests
-import time
 import re
-import urllib.request
-DOMAIN = "https://www.baidu.com/s?wd="
-a = input('请输入url:')
-b = int(input('请输入爬取的页数:'))
-c = int((b-1)*10+1)
-for i in range(0,c,10):
-    d = str(i)
-    url = str((DOMAIN)+ (a)+'&pn='+(d))
+import requests
+import random
+from lxml import etree
+from fake_useragent import UserAgent
+ua = UserAgent()
+sousuolist = ["inurl:jsp?id=","inurl:aspx?id=","inurl:asp?id=","inurl:admin/login"]      #百度语法搜索，表哥们可以宁外加一些语句，之所以没有加php，是因为百度搜的php完全没有php
+
+def getip():                                  #爬取代理IP，表哥们也可以爬取其他的
+    url = "http://proxylist.fatezero.org/proxy.list"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36",
-        "Cookie": "PSTM=1553559153; BIDUPSID=C6D409FA9EC7D5299885BCD64A2D7581; BD_UPN=12314753; BAIDUID=3DB37483066A48E00B7DB85820E62534:FG=1; BDUSS=RWSVVnU1FmdnN5RjZlU3dVdVp3WUtKVmxveGxyeXgweC1VN2NFNFdPU29odDFlRVFBQUFBJCQAAAAAAAAAAAEAAABvm2ZAwb2~6TQxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKj5tV6o-bVeST; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_WISE_SIDS=146309_146484_142019_145945_145118_141744_144117_145332_147279_146537_145931_145838_131247_144681_146574_140259_147346_127969_146551_145971_146749_145418_146653_146732_138425_144375_131423_146802_128699_132550_145318_107311_147136_147231_139910_146824_144966_145607_147046_144535_141911_146056_145397_146796_139914_110085; MSA_WH=1024_639; COOKIE_SESSION=2446_0_8_3_1_49_1_2_8_8_11_11_0_0_0_0_1589534076_0_1590034835%7C9%230_0_1590034835%7C1; BD_HOME=1; H_PS_PSSID=31359_1444_21111_31110_31253_31591_30839_31464_31322_30823_22158; sugstore=1; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; delPer=0; BD_CK_SAM=1; PSINO=6; H_PS_645EC=0edc9kEnFUkFUhLzvM7RE4AvR6VriK84EcmjtfgOwssoMhlABFbMhuHJn0bytdJFWB%2FU; BDSVRTM=94",
-        "Accept": "*/*",
-        "Host": "www.baidu.com",
-        "Connection": "close",
-        "X-Requested-With": "XMLHttpRequest",
-        "is_referer": "https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&rsv_idx=2&tn=baiduhome_pg&wd=inurl%3Aphp%3Fid%3D1&rsv_spt=1&oq=inurl%3Aphp%3Fid%3D1&rsv_pq=ae8be70a0002622b&rsv_t=9a86svqwaticxesYXy%2B5d3RCUlYzYIfZ%2B2xiZqTH2RkAC%2FdzD5mngmpoHpNa5RY%2FKUhR&rqlang=cn",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Dest": "empty",
-        "Referer": "https://www.baidu.com/s?wd=inurl%3Aphp%3Fid%3D1&pn=10&oq=inurl%3Aphp%3Fid%3D1&tn=baiduhome_pg&ie=utf-8&rsv_idx=2&rsv_pq=ae8be70a0002622b&rsv_t=f00dAsDUJz%2FE02JeQPtVp1pyeG9fQGf8BcM7zyKs%2BwK4d%2FTHapk8u04s5YNB4TQtMeoW",
-        "Accept-Encoding": "gzip, deflate",
-        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-    }
+        "User-Agent": ua.random,
+            }
     resp = requests.get(url, headers=headers)
     text = resp.text
-    html = etree.HTML(text)
-    urllinks = html.xpath("//div[@class='f13  se_st_footer']//a/@href")
-    for yuanshu in urllinks:
-        if yuanshu.startswith('http://www.baidu.com/'):
-            r = requests.get(yuanshu)
-            fliter1 = '?'
-            fliter2 = '404'
-            fliter3 = 'shtml'
-            fliter4 = 'html'
-            answear1 = fliter1 in (r.url)
-            answear2 = fliter2 not in (r.url)
-            answear3 = fliter3 not in (r.url)
-            answear4 = fliter4 not in (r.url)
-            time.sleep(0.1)
-            if bool(answear1) == True:
-                if bool(answear2) == True:
-                    if bool(answear3) == True:
-                        if bool(answear4) == True:
-                            print(r.url)
-                            f1 = open("url.txt", "a+", encoding='utf-8')
-                            f1.write((r.url)+'\n')
+    ssl = re.findall(r'"type": "(.*?)"', text)
+    ip = re.findall(r'"host": "(.*?)"', text)
+    port = re.findall(r'"port": (.*?),', text)
+    realurl = ('\n'.join([str(i[0]) + str("://") + str(i[1]) + str(":") + str(i[2]) for i in zip(ssl, ip, port)]))
+    #print(realurl)
+    f1 = open("daili.txt", "a+", encoding='utf-8')
+    f1.write(realurl)
+    f1.close()
+#getip()
+
+def httpip():                          #此函数是过滤http的代理是否可用
+    f = open("daili.txt", "r", encoding='utf-8')
+    data = f.readlines()
+    f.close()
+    for line in data:
+        flter = "http://"
+        ok = flter in line
+        if bool(ok) == True:
+            try:
+                resp = requests.get('http://www.baidu.com/', proxies={"http": line}, timeout=2)
+            except:
+                print('connect failed')
+            else:
+                if (resp.status_code) == 200:
+                    http = (line.strip("http://"))
+                    f1 = open("http.txt", "a+", encoding='utf-8')
+                    f1.write(http)
+                    f1.close()
+#httpip()
+
+def httpsip():         #和上面函数一样
+    f = open("daili.txt", "r", encoding='utf-8')
+    data = f.readlines()
+    f.close()
+    for line in data:
+        flter = "https"
+        ok = flter in line
+        if bool(ok) == True:
+            https = (line.strip("https://"))
+            url = "http://www.baidu.com/"
+            headers = {"User-Agent": ua.random, }
+            proxies = {"https": https, }
+            try:
+                res = requests.get(url, proxies=proxies, headers=headers, timeout=2)
+                if (res.status_code) == 200:
+                    f1 = open("https.txt", "a+", encoding='utf-8')
+                    f1.write(https)
+                    f1.close()
+            except Exception as e:
+                pass
+#httpsip()
+
+def function1urlcoolect():                 #信息搜集，爬取百度的url
+    for urls in sousuolist:
+        aa = str(urls)
+        for b in range(0, 201, 10):              #这个是页数，我默认调的20页
+            x = str(b)
+            url = "https://www.baidu.com/s?wd=" + aa + "&pn=" + x + "&ie=utf-8&rsv_pq=d9aea5c300020ea1&rsv_t=80abfpCuSVYp2OuZGqg%2FDifuo7RBscY63qXR8Hi4r2bE1bHBDcQUues7H2o"
+            with open('http.txt') as f:
+                lines = f.readlines()
+                f.close()
+                for i in range(1, 30):            #可能我过滤的方法有问题，有的测试成功的代理ip还是要链接超时
+                    try:
+                        meanless = "http://" + random.choice(lines)
+                        proxiesiphttp = meanless
+                        headers = {
+                            "Host": "www.baidu.com",
+                            "User-Agent": ua.random,
+                        }
+                        proxies = {"http": proxiesiphttp, }
+                        resp = requests.get(url, headers=headers, proxies=proxies, timeout=3)
+                        text = resp.content.decode('utf-8')
+                        urllinks = re.findall(r'target="_blank" href="(.*?)" class="c-showurl', text)
+                        for yuanshu in urllinks:
+                            r = requests.get(yuanshu)
+                            f1 = open("urlcollect.txt", "a+", encoding='utf-8')
+                            f1.write((r.url) + '\n')
                             f1.close()
+                            print(r.url)
+                        break
+                    except:                                                 #如果代理pi链接超时，将其从表单移除
+                        with open('http.txt', 'r') as r:
+                            meiyongde = str(proxiesiphttp)
+                            r.close()
+                        with open('http.txt', 'w') as w:
+                            for l in lines:
+                                if meiyongde not in l:
+                                    w.write(l)
+#function1urlcoolect()
+
+def xinxifenlei():                                               #将信息分类
+    with open('urlcollect.txt') as f:
+        line = f.readlines()
+        lines = {}.fromkeys(line).keys()
+        f.close()
+        for data in lines:
+            if bool(re.findall('(aspx)(\?)',data)) ==True:
+                f1 = open("aspxurl.txt", "a+", encoding='utf-8')
+                f1.write(data)
+                f1.close()
+            if bool(re.findall('(jsp)(\?)',data)) ==True:
+                f1 = open("jspurl.txt", "a+", encoding='utf-8')
+                f1.write(data)
+                f1.close()
+            if bool(re.findall('(asp)(\?)',data)) ==True:
+                f1 = open("aspurl.txt", "a+", encoding='utf-8')
+                f1.write(data)
+                f1.close()
+            if bool(re.findall('(admin.)|(login.)|(adminlogin)',data)) ==True:
+                f1 = open("houtai.txt", "a+", encoding='utf-8')
+                f1.write(data)
+                f1.close()
+#xinxifenlei()
+
