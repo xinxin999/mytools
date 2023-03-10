@@ -29,3 +29,10 @@
 
 #正则提取关键类容
 只需改一下正则，提取txt里的关键类容到另外一个txt文本
+
+#mac-os.py
+fuzzing混淆 mac-os终端命令
+
+#win-cmd.py
+fuzzing混淆 cmd终端命令
+
